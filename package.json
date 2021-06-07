@@ -2,7 +2,6 @@
   "name": "crypto-advisor",
   "version": "1.0.0",
   "description": "Propose crypto investment models based on your risk tolerance",
-  "main": "index.html",
   "scripts": {
     "start": "parcel serve --dist-dir dist src/index.html",
     "build": "parcel build --dist-dir dist src/index.html",
