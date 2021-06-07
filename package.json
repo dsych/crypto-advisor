@@ -1,0 +1,30 @@
+{
+  "name": "crypto-advisor",
+  "version": "1.0.0",
+  "description": "Propose crypto investment models based on your risk tolerance",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel serve --dist-dir dist src/index.html",
+    "build": "parcel build --dist-dir dist src/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsych/crypto-advisor.git"
+  },
+  "keywords": [
+    "crypto",
+    "advisor",
+    "risk",
+    "investing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dsych/crypto-advisor/issues"
+  },
+  "homepage": "https://github.com/dsych/crypto-advisor#readme",
+  "devDependencies": {
+    "parcel": "^2.0.0-beta.2"
+  }
+}
