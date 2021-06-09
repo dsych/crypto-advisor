@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import DataContext from '../contexts/dataContext';
+import React, { useContext, useState, useEffect } from "react";
+import DataContext from "../contexts/dataContext";
 import {
   Box,
   VStack,
@@ -20,8 +20,9 @@ import {
   Image,
   StatNumber,
   StatHelpText,
+  StatLabel,
   Stat,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -29,13 +30,20 @@ export default function Advisor() {
   const [deposit, setDeposit] = useState(100);
   const [riskLevel, setRiskLevel] = useState(5);
   const [holdings, setHoldings] = useState([]);
+  const [riskLevelLabel, setRiskLevelLabel] = useState("");
 
   useEffect(() => {
     if (deposit > 0) {
-      const result = dataService.getHoldings(deposit, riskLevel);
-      setHoldings(result);
+      const { holdings, label } = dataService.getHoldings(riskLevel);
+      setRiskLevelLabel(label);
+      setHoldings(holdings);
     }
   }, [deposit, riskLevel, dataService]);
+
+  const calculateContribution = (total, percent) =>
+    !total || !percent
+      ? Number.parseFloat(0).toFixed(2)
+      : Number.parseFloat(total * (percent / 100)).toFixed(2);
 
   return (
     <Box
@@ -68,7 +76,7 @@ export default function Advisor() {
 
         {/* Risk Level */}
         <Box>
-          <FormLabel>Risk Level (Balanced)</FormLabel>
+          <FormLabel>Risk Level ({riskLevelLabel})</FormLabel>
           <Slider
             name="riskLevel"
             defaultValue={5}
@@ -100,7 +108,17 @@ export default function Advisor() {
                   </Center>
                   <Center w="100%">
                     <Stat>
-                      <StatNumber>${10}</StatNumber>
+                      <StatLabel
+                        style={{
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {holding.name}
+                      </StatLabel>
+                      <StatNumber>
+                        ${calculateContribution(deposit, holding.percent)}
+                      </StatNumber>
                       <StatHelpText>{holding.percent}%</StatHelpText>
                     </Stat>
                   </Center>
