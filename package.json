@@ -4,7 +4,7 @@
   "description": "Propose crypto investment models based on your risk tolerance",
   "scripts": {
     "start": "parcel serve --dist-dir dist src/index.html",
-    "build": "parcel build --dist-dir dist src/index.html",
+    "build": "parcel build --public-url ./ --dist-dir dist src/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
