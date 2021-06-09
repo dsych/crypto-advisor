@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Propose crypto investment models based on your risk tolerance",
   "scripts": {
-    "start": "parcel serve --dist-dir dist src/index.html",
-    "build": "parcel build --dist-dir dist src/index.html",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "repository": {
     "type": "git",
@@ -22,8 +23,36 @@
   "bugs": {
     "url": "https://github.com/dsych/crypto-advisor/issues"
   },
-  "homepage": "https://github.com/dsych/crypto-advisor#readme",
+  "homepage": ".",
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.13.0",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "web-vitals": "^1.1.2",
+    "parcel": "^2.0.0-beta.2"
+  },
   "devDependencies": {
     "parcel": "^2.0.0-beta.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
