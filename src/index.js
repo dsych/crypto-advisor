@@ -1,13 +1,14 @@
-import React from "react";
-import { render } from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './components/App';
+import { ColorModeScript } from '@chakra-ui/react';
 
-console.log("To the moon!");
+import theme from './theme';
 
-const App = () => (
-  <div>
-    <h1>Houston</h1>
-    <h3>Sending your net worth to the Moon since ...</h3>
-  </div>
+ReactDOM.render(
+  <React.StrictMode>
+    <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
 );
-
-render(<App />, document.getElementById("root"));

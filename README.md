@@ -1,3 +1,2 @@
-![build status](https://api.travis-ci.com/dsych/crypto-advisor.svg?branch=main&status=passed)
+[![Build Status](https://travis-ci.com/dsych/crypto-advisor.svg?branch=main)](https://travis-ci.com/dsych/crypto-advisor)
 # Houston
-
