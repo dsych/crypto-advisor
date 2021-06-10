@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
-import DataContext from "../contexts/dataContext";
+import React, { useContext, useState, useEffect } from 'react';
+import DataContext from '../contexts/dataContext';
 import {
   Box,
   VStack,
@@ -15,14 +15,14 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   SimpleGrid,
-  Flex,
   Center,
   Image,
   StatNumber,
   StatHelpText,
   StatLabel,
   Stat,
-} from "@chakra-ui/react";
+  HStack,
+} from '@chakra-ui/react';
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -30,7 +30,7 @@ export default function Advisor() {
   const [deposit, setDeposit] = useState(100);
   const [riskLevel, setRiskLevel] = useState(5);
   const [holdings, setHoldings] = useState([]);
-  const [riskLevelLabel, setRiskLevelLabel] = useState("");
+  const [riskLevelLabel, setRiskLevelLabel] = useState('');
 
   useEffect(() => {
     if (deposit > 0) {
@@ -48,12 +48,11 @@ export default function Advisor() {
   return (
     <Box
       borderWidth="1px"
-      maxW="800px"
-      maxH="70vh"
+      w={{ base: '80%', md: '70%', xl: '50%' }}
       rounded="lg"
       m="auto"
       mt="100px"
-      p="20px"
+      p="30px"
       shadow="md"
     >
       {/* Monthly Deposit */}
@@ -96,33 +95,32 @@ export default function Advisor() {
         {/* Monthly Contribution */}
         <Box>
           <FormLabel>Monthly Contribution</FormLabel>
-          <SimpleGrid columns={3} spacing="40px">
+          <SimpleGrid columns={{ base: 2, md: 3 }} spacing="40px">
             {holdings.map((holding) => {
               return (
-                <Flex key={holding.name}>
-                  <Center w="120px">
-                    <Image
-                      name={holding.name}
-                      src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${holding.picId}.png`}
-                    />
-                  </Center>
-                  <Center w="100%">
+                <HStack key={holding.name}>
+                  <Image
+                    boxSize={{ base: '50px', md: '64px' }}
+                    name={holding.name}
+                    src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${holding.picId}.png`}
+                  />
+                  <Center>
                     <Stat>
                       <StatLabel
                         style={{
-                          fontWeight: "bold",
-                          textTransform: "uppercase",
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase',
                         }}
                       >
                         {holding.name}
                       </StatLabel>
-                      <StatNumber>
+                      <StatNumber fontSize={{ base: '1em', md: '1.2em' }}>
                         ${calculateContribution(deposit, holding.percent)}
                       </StatNumber>
                       <StatHelpText>{holding.percent}%</StatHelpText>
                     </Stat>
                   </Center>
-                </Flex>
+                </HStack>
               );
             })}
           </SimpleGrid>
