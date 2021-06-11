@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 
 import Contributions from './Contributions';
+import ExpectationChart from './ExpectationChart';
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -83,6 +84,8 @@ export default function Advisor() {
 
         {/* Monthly Contribution */}
         <Contributions holdings={holdings} deposit={deposit} />
+
+        <ExpectationChart />
       </VStack>
     </Box>
   );
