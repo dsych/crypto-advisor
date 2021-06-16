@@ -1,35 +1,34 @@
-// path: `/v2/assets/bitcoin/history?interval=d1&start=${before}&end=${now}`,
-//
-const baseUrl = "api.coincap.io/v2";
-
+const baseUrl = "http://api.coincap.io/v2";
 /**
  * Retrieves top n number of coins based on their market cap in descending order
  */
 const retrieveTopCoins = async (limit, excludeSymbolList) => {
   // it is more efficient to work with a map than with a list
-  const ex = (excludeSymbolList || []).reduce(
-    (acc, el) => (acc[el] = true),
-    {}
-  );
+  const ex = (excludeSymbolList || []).reduce((acc, el) => {
+    acc[el] = true;
+    return acc;
+  }, {});
   let result = [];
 
   try {
-    const { data } = await fetch(`${baseUrl}/assets`, {
+    const response = await fetch(`${baseUrl}/assets`, {
       method: "GET",
       redirect: "follow",
     });
+
+    const { data } = await response.json();
 
     for (const coin of data) {
       if (!ex[coin["symbol"]]) {
         result.push(coin);
       }
       // terminate if we got enough coins
-      if (result.size() == limit) {
+      if (result.length == limit) {
         break;
       }
     }
   } catch (err) {
-    console.error("Failed to retrieve top coints", err);
+    console.error("Failed to retrieve top coins", err);
   }
 
   return result;
@@ -65,44 +64,47 @@ const rankCoins = async (coinList) => {
 
   for (const coin of coinList) {
     try {
-      const {
-        data,
-      } = await fetch(
-        `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${startUnixTime}&end=${endUnixTime}`,
-        { method: "GET", redirect: "follow" }
-      );
+      const { data } = await (
+        await fetch(
+          `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${startUnixTime}&end=${endUnixTime}`,
+          { method: "GET", redirect: "follow" }
+        )
+      ).json();
 
       // too little data
-      if (data.size() < 42) {
+      if (data.length < 42) {
         continue;
       }
 
       // calculate the initial average
       let sumOfPeriod = data
         .slice(-41, -21)
-        .reduce((acc, curr) => (acc += curr.priceUsd), 0);
+        .reduce((acc, curr) => (acc += +curr.priceUsd), 0);
 
       // account for possible duplicates
+      result[coin.symbol] = {};
       result[coin.symbol].deviations = [];
       result[coin.symbol].averages = [];
 
       // calculate moving averages for each day of the last 21 days using sliding window
-      for (let i = data.size() - 21; i < data.size(); i++) {
+      for (let i = data.length - 21; i < data.length; i++) {
         // move the average to include the current time point
-        sumOfPeriod += data[i].priceUsd;
-        sumOfPeriod -= data[i - 1].priceUsd;
+        sumOfPeriod += +data[i].priceUsd;
+        sumOfPeriod -= +data[i - 1].priceUsd;
 
         const movingAverage = sumOfPeriod / 21;
 
         result[coin.symbol].averages.push(movingAverage);
         result[coin.symbol].deviations.push(
-          Math.abs(Math.abs(movingAverage) - Math.abs(data[i].priceUsd))
+          (Math.abs(Math.abs(movingAverage) - Math.abs(+data[i].priceUsd)) *
+            100) /
+            Math.abs(movingAverage)
         );
       }
 
       result[coin.symbol].averageDeviation =
         result[coin.symbol].deviations.reduce((acc, curr) => (acc += curr), 0) /
-        result[coin.symbol].deviations.size();
+        result[coin.symbol].deviations.length;
     } catch (err) {
       console.error("Failed to fetch historical data for ", coin.id);
       console.error(err);
@@ -114,7 +116,7 @@ const rankCoins = async (coinList) => {
     .map((key) =>
       Object.create({ symbol: key, averageDev: result[key].averageDeviation })
     )
-    .sort((left, right) => left.averageDev < right.averageDev);
+    .sort((left, right) => left.averageDev - right.averageDev);
 
   // record the rank based on the position of sorted symbol
   rankedCoins.forEach((el, index) => (result[el.symbol].rank = index + 1));
@@ -483,6 +485,9 @@ export default class MockDataService {
 
   getTopStableCoins() {
     // retrieve top 10 coins and rank them based on their volatility
-    return retrieveTopCoins(10).then((coins) => rankCoins(coins));
+    // also exclude stable coins, as they are not indicative
+    return retrieveTopCoins(10, ["USDC", "USDT"]).then((coins) =>
+      rankCoins(coins)
+    );
   }
 }
