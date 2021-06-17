@@ -134,213 +134,31 @@ const rankCoins = async (coinList) => {
 
 export default class MockDataService {
   _staticCoinAllocation = [
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
-    [
-      {
-        symbol: "btc",
-      },
-      {
-        symbol: "eth",
-      },
-      {
-        symbol: "bnb",
-      },
-      {
-        symbol: "ada",
-      },
-      {
-        symbol: "doge",
-      },
-      {
-        symbol: "usdt",
-      },
-    ],
+    {
+      symbol: "btc",
+    },
+    {
+      symbol: "eth",
+    },
+    {
+      symbol: "bnb",
+    },
+    {
+      symbol: "ada",
+    },
+    {
+      symbol: "doge",
+    },
+    {
+      symbol: "usdt",
+    },
   ];
 
   _dynamicCoins = null;
 
   getStaticRiskAllocationFor(riskLevel) {
     return getRiskAllocationBasedOnRank(
-      this._staticCoinAllocation[+riskLevel - 1],
+      this._staticCoinAllocation,
       +riskLevel - 1
     );
   }
