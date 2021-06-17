@@ -1,6 +1,6 @@
 import { getRiskAllocationBasedOnRank } from "../util/riskMask";
 
-const baseUrl = "http://api.coincap.io/v2";
+const baseUrl = "https://api.coincap.io/v2";
 /**
  * Retrieves top n number of coins based on their market cap in descending order
  */
@@ -14,9 +14,16 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
 
   try {
     const response = await fetch(`${baseUrl}/assets`, {
+      mode: "cors",
       method: "GET",
       redirect: "follow",
     });
+
+    if (!response.ok) {
+      throw String.toString(
+        `Received ${response.status}: ${response.statusText}`
+      );
+    }
 
     const { data } = await response.json();
 
