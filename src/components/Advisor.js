@@ -14,15 +14,10 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  SimpleGrid,
-  Center,
-  Image,
-  StatNumber,
-  StatHelpText,
-  StatLabel,
-  Stat,
-  HStack,
 } from '@chakra-ui/react';
+
+import Contributions from './Contributions';
+import ExpectationChart from './ExpectationChart';
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -39,11 +34,6 @@ export default function Advisor() {
       setHoldings(holdings);
     }
   }, [deposit, riskLevel, dataService]);
-
-  const calculateContribution = (total, percent) =>
-    !total || !percent
-      ? Number.parseFloat(0).toFixed(2)
-      : Number.parseFloat(total * (percent / 100)).toFixed(2);
 
   return (
     <Box
@@ -93,38 +83,9 @@ export default function Advisor() {
         </Box>
 
         {/* Monthly Contribution */}
-        <Box>
-          <FormLabel>Monthly Contribution</FormLabel>
-          <SimpleGrid columns={{ base: 2, md: 3 }} spacing="40px">
-            {holdings.map((holding) => {
-              return (
-                <HStack key={holding.name}>
-                  <Image
-                    boxSize={{ base: '50px', md: '64px' }}
-                    name={holding.name}
-                    src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${holding.picId}.png`}
-                  />
-                  <Center>
-                    <Stat>
-                      <StatLabel
-                        style={{
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {holding.name}
-                      </StatLabel>
-                      <StatNumber fontSize={{ base: '1em', md: '1.2em' }}>
-                        ${calculateContribution(deposit, holding.percent)}
-                      </StatNumber>
-                      <StatHelpText>{holding.percent}%</StatHelpText>
-                    </Stat>
-                  </Center>
-                </HStack>
-              );
-            })}
-          </SimpleGrid>
-        </Box>
+        <Contributions holdings={holdings} deposit={deposit} />
+
+        <ExpectationChart />
       </VStack>
     </Box>
   );
