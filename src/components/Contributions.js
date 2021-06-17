@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   FormLabel,
@@ -10,7 +10,7 @@ import {
   StatLabel,
   Stat,
   HStack,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 export default function Contributions({ holdings, deposit }) {
   const calculateContribution = (total, percent) =>
@@ -26,21 +26,21 @@ export default function Contributions({ holdings, deposit }) {
           return (
             <HStack key={holding.name}>
               <Image
-                boxSize={{ base: '50px', md: '64px' }}
+                boxSize={{ base: "50px", md: "64px" }}
                 name={holding.name}
-                src={`https://s2.coinmarketcap.com/static/img/coins/64x64/${holding.picId}.png`}
+                src={`https://assets.coincap.io/assets/icons/${holding.name.toLowerCase()}@2x.png`}
               />
               <Center>
                 <Stat>
                   <StatLabel
                     style={{
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase',
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
                     }}
                   >
                     {holding.name}
                   </StatLabel>
-                  <StatNumber fontSize={{ base: '1em', md: '1.2em' }}>
+                  <StatNumber fontSize={{ base: "1em", md: "1.2em" }}>
                     ${calculateContribution(deposit, holding.percent)}
                   </StatNumber>
                   <StatHelpText>{holding.percent}%</StatHelpText>

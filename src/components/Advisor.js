@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import DataContext from '../contexts/dataContext';
+import React, { useContext, useState, useEffect } from "react";
+import DataContext from "../contexts/dataContext";
 import {
   Box,
   VStack,
@@ -14,10 +14,13 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-} from '@chakra-ui/react';
+  Switch,
+  Divider,
+  Spinner,
+} from "@chakra-ui/react";
 
-import Contributions from './Contributions';
-import ExpectationChart from './ExpectationChart';
+import Contributions from "./Contributions";
+import ExpectationChart from "./ExpectationChart";
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -25,20 +28,31 @@ export default function Advisor() {
   const [deposit, setDeposit] = useState(100);
   const [riskLevel, setRiskLevel] = useState(5);
   const [holdings, setHoldings] = useState([]);
-  const [riskLevelLabel, setRiskLevelLabel] = useState('');
+  const [riskLevelLabel, setRiskLevelLabel] = useState("");
+  const [allocationPreference, setAllocationPreference] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (deposit > 0) {
-      const { holdings, label } = dataService.getHoldings(riskLevel);
-      setRiskLevelLabel(label);
-      setHoldings(holdings);
-    }
-  }, [deposit, riskLevel, dataService]);
+    const fetchRisk = async () => {
+      if (deposit > 0) {
+        setIsLoading(true);
+        const { holdings, label } = allocationPreference
+          ? await dataService.getDynamicRiskAllocationFor(riskLevel)
+          : await dataService.getStaticRiskAllocationFor(riskLevel);
+
+        setIsLoading(false);
+
+        setRiskLevelLabel(label);
+        setHoldings(holdings);
+      }
+    };
+    fetchRisk();
+  }, [deposit, riskLevel, allocationPreference, dataService]);
 
   return (
     <Box
       borderWidth="1px"
-      w={{ base: '80%', md: '70%', xl: '50%' }}
+      w={{ base: "80%", md: "70%", xl: "50%" }}
       rounded="lg"
       m="auto"
       mt="100px"
@@ -81,7 +95,22 @@ export default function Advisor() {
             </SliderTrack>
             <SliderThumb boxSize={6} />
           </Slider>
+          <FormControl display="flex" alignItems="center">
+            <FormLabel mb="0" htmlFor="allocation-preference">
+              Use Dynamic coin allocations?
+            </FormLabel>
+            <Switch
+              id="allocation-preference"
+              size="lg"
+              onChange={(value) =>
+                setAllocationPreference(value.target.checked)
+              }
+            />
+            <Spinner display={isLoading ? "block" : "none"} mx="5" />
+          </FormControl>
         </Box>
+
+        <Divider my="5" />
 
         {/* Monthly Contribution */}
         <Contributions holdings={holdings} deposit={deposit} />
