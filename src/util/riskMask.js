@@ -1,10 +1,22 @@
+const getValueWithinLimits = (v, min, max) => {
+  v = +v;
+
+  if (Number.isNaN(v)) {
+    return null;
+  }
+
+  return Math.max(min, Math.min(v, max));
+};
+
 export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
   coinList = coinList || [];
-  riskLevel = +riskLevel || 1;
+  riskLevel =
+    getValueWithinLimits(riskLevel, 0, Object.keys(masks).length - 1) || 0;
 
-  const portfolio = Object.create(masks[riskLevel]);
+  const portfolio = Object.assign({}, masks[riskLevel]);
 
   coinList
+    .sort((l, r) => +l.rank - +r.rank)
     .slice(0, portfolio.holdings.length)
     .forEach((el, index) => (portfolio.holdings[index].name = el.symbol));
 
@@ -12,7 +24,7 @@ export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
 };
 
 const masks = {
-  1: {
+  0: {
     label: "Conservative",
     holdings: [
       {
@@ -22,20 +34,20 @@ const masks = {
         percent: 10,
       },
       {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
         percent: 10,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
       },
     ],
   },
-  2: {
+  1: {
     label: "Conservative",
     holdings: [
       {
@@ -45,20 +57,20 @@ const masks = {
         percent: 15,
       },
       {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
         percent: 10,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
       },
     ],
   },
-  3: {
+  2: {
     label: "Conservative",
     holdings: [
       {
@@ -68,20 +80,20 @@ const masks = {
         percent: 20,
       },
       {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
         percent: 10,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
       },
     ],
   },
-  4: {
+  3: {
     label: "Balanced",
     holdings: [
       {
@@ -89,6 +101,9 @@ const masks = {
       },
       {
         percent: 20,
+      },
+      {
+        percent: 10,
       },
       {
         percent: 5,
@@ -99,12 +114,9 @@ const masks = {
       {
         percent: 0,
       },
-      {
-        percent: 10,
-      },
     ],
   },
-  5: {
+  4: {
     label: "Balanced",
     holdings: [
       {
@@ -117,17 +129,17 @@ const masks = {
         percent: 10,
       },
       {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
         percent: 10,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
       },
     ],
   },
-  6: {
+  5: {
     label: "Balanced",
     holdings: [
       {
@@ -140,17 +152,17 @@ const masks = {
         percent: 10,
       },
       {
-        percent: 0,
-      },
-      {
-        percent: 0,
-      },
-      {
         percent: 5,
+      },
+      {
+        percent: 0,
+      },
+      {
+        percent: 0,
       },
     ],
   },
-  7: {
+  6: {
     label: "Balanced",
     holdings: [
       {
@@ -163,13 +175,36 @@ const masks = {
         percent: 12,
       },
       {
+        percent: 5,
+      },
+      {
         percent: 3,
       },
       {
         percent: 0,
       },
+    ],
+  },
+  7: {
+    label: "Growth",
+    holdings: [
       {
-        percent: 5,
+        percent: 50,
+      },
+      {
+        percent: 30,
+      },
+      {
+        percent: 13,
+      },
+      {
+        percent: 4,
+      },
+      {
+        percent: 3,
+      },
+      {
+        percent: 0,
       },
     ],
   },
@@ -189,10 +224,10 @@ const masks = {
         percent: 4,
       },
       {
-        percent: 0,
+        percent: 2,
       },
       {
-        percent: 3,
+        percent: 1,
       },
     ],
   },
@@ -206,39 +241,16 @@ const masks = {
         percent: 30,
       },
       {
-        percent: 13,
+        percent: 10,
       },
       {
         percent: 4,
       },
       {
-        percent: 1,
+        percent: 3,
       },
       {
-        percent: 2,
-      },
-    ],
-  },
-  10: {
-    label: "Growth",
-    holdings: [
-      {
-        percent: 50,
-      },
-      {
-        percent: 30,
-      },
-      {
-        percent: 13,
-      },
-      {
-        percent: 4,
-      },
-      {
-        percent: 2,
-      },
-      {
-        percent: 1,
+        percent: 3,
       },
     ],
   },

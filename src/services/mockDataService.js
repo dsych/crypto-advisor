@@ -43,31 +43,24 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
   return result;
 };
 
-const offsetMonthsFromNow = (months) => {
-  const now = new Date();
-
-  if (now.getMonth() - months < 0) {
-    // if the difference between current month and the offset is negative, we want to add it. otherwise we will perform a double negation
-    now.setFullYear(
-      now.getFullYear() - 1,
-      11 + (now.getMonth() - months),
-      now.getDate()
-    );
-  } else {
-    now.setMonth(now.getMonth() - months);
-  }
-
-  return now;
-};
+const millisecondsInDay = 86400000;
+const daysToMilliseconds = (days) => days * millisecondsInDay;
 
 /**
- * Ranks coins in ascending order based on their average deviation from the moving average of the past 21 days
+ * Ranks coins in ascending order based on their average deviation from the moving average of the past smaDays days
  *
  * @returns [] of type {averages: [], deviations: [], averageDeviation: 0, rank: 0}
  */
-const rankCoins = async (coinList) => {
+const rankCoins = async (coinList, smaDays) => {
   coinList = coinList || [];
-  const startUnixTime = offsetMonthsFromNow(2).getTime();
+  smaDays = +smaDays;
+
+  if (Number.isNaN(smaDays)) {
+    smaDays = 150;
+  }
+
+  const startUnixTime =
+    new Date().getTime() - daysToMilliseconds((smaDays + 1) * 2);
   const endUnixTime = new Date().getTime();
 
   const historicalData = {};
@@ -82,13 +75,13 @@ const rankCoins = async (coinList) => {
       ).json();
 
       // too little data
-      if (data.length < 42) {
+      if (data.length < smaDays * 2) {
         continue;
       }
 
       // calculate the initial average
       let sumOfPeriod = data
-        .slice(-41, -21)
+        .slice(-smaDays * 2, -smaDays)
         .reduce((acc, curr) => (acc += +curr.priceUsd), 0);
 
       // account for possible duplicates
@@ -96,13 +89,13 @@ const rankCoins = async (coinList) => {
       historicalData[coin.symbol].deviations = [];
       historicalData[coin.symbol].averages = [];
 
-      // calculate moving averages for each day of the last 21 days using sliding window
-      for (let i = data.length - 21; i < data.length; i++) {
+      // calculate moving averages for each day of the last smaDays days using sliding window
+      for (let i = data.length - smaDays; i < data.length; i++) {
         // move the average to include the current time point
         sumOfPeriod += +data[i].priceUsd;
         sumOfPeriod -= +data[i - 1].priceUsd;
 
-        const movingAverage = sumOfPeriod / 21;
+        const movingAverage = sumOfPeriod / smaDays;
 
         historicalData[coin.symbol].averages.push(movingAverage);
         historicalData[coin.symbol].deviations.push(
@@ -125,16 +118,19 @@ const rankCoins = async (coinList) => {
 
   // we want to sort coins in ascending order based on their averageDeviation, so that we can record their rank
   const rankedCoins = Object.keys(historicalData)
-    .map((key, index) =>
-      Object.create({
-        symbol: key,
-        averageDeviation: historicalData[key].averageDeviation,
-        averages: historicalData[key].averages,
-        deviations: historicalData[key].deviations,
-        rank: index + 1,
-      })
+    .map((key) =>
+      Object.assign(
+        {},
+        {
+          symbol: key,
+          averageDeviation: historicalData[key].averageDeviation,
+          averages: historicalData[key].averages,
+          deviations: historicalData[key].deviations,
+        }
+      )
     )
-    .sort((left, right) => left.averageDeviation - right.averageDeviation);
+    .sort((left, right) => left.averageDeviation - right.averageDeviation)
+    .forEach((coin, index) => (coin.rank = index + 1));
 
   return rankedCoins;
 };
@@ -143,21 +139,27 @@ export default class MockDataService {
   _staticCoinAllocation = [
     {
       symbol: "btc",
+      rank: 1,
     },
     {
       symbol: "eth",
+      rank: 2,
     },
     {
       symbol: "bnb",
+      rank: 3,
     },
     {
       symbol: "ada",
+      rank: 4,
     },
     {
       symbol: "doge",
+      rank: 5,
     },
     {
       symbol: "usdt",
+      rank: 6,
     },
   ];
 
@@ -172,15 +174,17 @@ export default class MockDataService {
 
   async getDynamicRiskAllocationFor(riskLevel) {
     if (this._dynamicCoins === null) {
+      // retrieve top coins and rank them based on their volatility
+      // also exclude stable coins, as they are not indicative
       this._dynamicCoins = await rankCoins(
         await retrieveTopCoins(this._staticCoinAllocation.length, [
           "USDC",
           "USDT",
-        ])
+        ]),
+        150
       );
     }
-    // retrieve top 6 coins and rank them based on their volatility
-    // also exclude stable coins, as they are not indicative
+
     return getRiskAllocationBasedOnRank(this._dynamicCoins, riskLevel - 1);
   }
 }
