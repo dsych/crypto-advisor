@@ -1,10 +1,10 @@
-import MockDataService from '../services/mockDataService';
-import DataContext from '../contexts/dataContext';
-import { ChakraProvider, CSSReset } from '@chakra-ui/react';
-import Advisor from './Advisor';
-import theme from '../theme';
+import DataService from "../services/dataService";
+import DataContext from "../contexts/dataContext";
+import { ChakraProvider, CSSReset } from "@chakra-ui/react";
+import Advisor from "./Advisor";
+import theme from "../theme";
 
-const dataService = new MockDataService();
+const dataService = new DataService();
 
 function App() {
   return (

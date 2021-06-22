@@ -14,7 +14,6 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Switch,
   Divider,
   Spinner,
 } from "@chakra-ui/react";
@@ -29,25 +28,22 @@ export default function Advisor() {
   const [riskLevel, setRiskLevel] = useState(5);
   const [holdings, setHoldings] = useState([]);
   const [riskLevelLabel, setRiskLevelLabel] = useState("");
-  const [allocationPreference, setAllocationPreference] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchRisk = async () => {
       if (deposit > 0) {
-        setIsLoading(true);
-        const { holdings, label } = allocationPreference
-          ? await dataService.getDynamicRiskAllocationFor(riskLevel)
-          : await dataService.getStaticRiskAllocationFor(riskLevel);
+        const { holdings, label } = await dataService.getCoinAllocationsFor(
+          riskLevel
+        );
 
         setIsLoading(false);
-
         setRiskLevelLabel(label);
         setHoldings(holdings);
       }
     };
     fetchRisk();
-  }, [deposit, riskLevel, allocationPreference, dataService]);
+  }, [deposit, riskLevel, dataService]);
 
   return (
     <Box
@@ -95,25 +91,16 @@ export default function Advisor() {
             </SliderTrack>
             <SliderThumb boxSize={6} />
           </Slider>
-          <FormControl display="flex" alignItems="center">
-            <FormLabel mb="0" htmlFor="allocation-preference">
-              Use Dynamic coin allocations?
-            </FormLabel>
-            <Switch
-              id="allocation-preference"
-              size="lg"
-              onChange={(value) =>
-                setAllocationPreference(value.target.checked)
-              }
-            />
-            <Spinner display={isLoading ? "block" : "none"} mx="5" />
-          </FormControl>
         </Box>
 
         <Divider my="5" />
 
         {/* Monthly Contribution */}
-        <Contributions holdings={holdings} deposit={deposit} />
+        {isLoading ? (
+          <Spinner size="xl" display={isLoading ? "block" : "none"} mx="5" />
+        ) : (
+          <Contributions holdings={holdings} deposit={deposit} />
+        )}
 
         <ExpectationChart monthlyDeposit={deposit} riskLevel={riskLevel} />
       </VStack>

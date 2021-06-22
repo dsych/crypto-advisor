@@ -129,59 +129,29 @@ const rankCoins = async (coinList, smaDays) => {
         }
       )
     )
-    .sort((left, right) => left.averageDeviation - right.averageDeviation)
-    .forEach((coin, index) => (coin.rank = index + 1));
+    .sort((left, right) => left.averageDeviation - right.averageDeviation);
+
+  rankedCoins.forEach((coin, index) => (coin.rank = index + 1));
 
   return rankedCoins;
 };
 
-export default class MockDataService {
-  _staticCoinAllocation = [
-    {
-      symbol: "btc",
-      rank: 1,
-    },
-    {
-      symbol: "eth",
-      rank: 2,
-    },
-    {
-      symbol: "bnb",
-      rank: 3,
-    },
-    {
-      symbol: "ada",
-      rank: 4,
-    },
-    {
-      symbol: "doge",
-      rank: 5,
-    },
-    {
-      symbol: "usdt",
-      rank: 6,
-    },
-  ];
-
+export default class DataService {
   _dynamicCoins = null;
+  _numberOfCoinsToFetch = 6;
+  _coinFilterList = ["USDC", "USDT"];
+  _lengthOfSma = 150;
 
-  getStaticRiskAllocationFor(riskLevel) {
-    return getRiskAllocationBasedOnRank(
-      this._staticCoinAllocation,
-      +riskLevel - 1
-    );
-  }
-
-  async getDynamicRiskAllocationFor(riskLevel) {
+  async getCoinAllocationsFor(riskLevel) {
     if (this._dynamicCoins === null) {
       // retrieve top coins and rank them based on their volatility
       // also exclude stable coins, as they are not indicative
       this._dynamicCoins = await rankCoins(
-        await retrieveTopCoins(this._staticCoinAllocation.length, [
-          "USDC",
-          "USDT",
-        ]),
-        150
+        await retrieveTopCoins(
+          this._numberOfCoinsToFetch,
+          this._coinFilterList
+        ),
+        this._lengthOfSma
       );
     }
 
