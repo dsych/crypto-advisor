@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import DataContext from '../contexts/dataContext';
+import React, { useContext, useState, useEffect } from "react";
+import DataContext from "../contexts/dataContext";
 import {
   Box,
   VStack,
@@ -14,10 +14,12 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-} from '@chakra-ui/react';
+  Divider,
+  Spinner,
+} from "@chakra-ui/react";
 
-import Contributions from './Contributions';
-import ExpectationChart from './ExpectationChart';
+import Contributions from "./Contributions";
+import ExpectationChart from "./ExpectationChart";
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
@@ -25,20 +27,28 @@ export default function Advisor() {
   const [deposit, setDeposit] = useState(100);
   const [riskLevel, setRiskLevel] = useState(5);
   const [holdings, setHoldings] = useState([]);
-  const [riskLevelLabel, setRiskLevelLabel] = useState('');
+  const [riskLevelLabel, setRiskLevelLabel] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (deposit > 0) {
-      const { holdings, label } = dataService.getHoldings(riskLevel);
-      setRiskLevelLabel(label);
-      setHoldings(holdings);
-    }
+    const fetchRisk = async () => {
+      if (deposit > 0) {
+        const { holdings, label } = await dataService.getCoinAllocationsFor(
+          riskLevel
+        );
+
+        setIsLoading(false);
+        setRiskLevelLabel(label);
+        setHoldings(holdings);
+      }
+    };
+    fetchRisk();
   }, [deposit, riskLevel, dataService]);
 
   return (
     <Box
       borderWidth="1px"
-      w={{ base: '80%', md: '70%', xl: '50%' }}
+      w={{ base: "80%", md: "70%", xl: "50%" }}
       rounded="lg"
       m="auto"
       mt="100px"
@@ -83,8 +93,14 @@ export default function Advisor() {
           </Slider>
         </Box>
 
+        <Divider my="5" />
+
         {/* Monthly Contribution */}
-        <Contributions holdings={holdings} deposit={deposit} />
+        {isLoading ? (
+          <Spinner size="xl" display={isLoading ? "block" : "none"} mx="5" />
+        ) : (
+          <Contributions holdings={holdings} deposit={deposit} />
+        )}
 
         <ExpectationChart monthlyDeposit={deposit} riskLevel={riskLevel} />
       </VStack>
