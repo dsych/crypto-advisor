@@ -42,6 +42,7 @@ export default function Advisor() {
       rounded="lg"
       m="auto"
       mt="100px"
+      mb="100px"
       p="30px"
       shadow="md"
     >
@@ -51,7 +52,7 @@ export default function Advisor() {
           <FormLabel>Monthly Deposit</FormLabel>
           <NumberInput
             defaultValue={100}
-            min={10}
+            min={0}
             step={10}
             onChange={(value) => setDeposit(value)}
           >
@@ -85,7 +86,7 @@ export default function Advisor() {
         {/* Monthly Contribution */}
         <Contributions holdings={holdings} deposit={deposit} />
 
-        <ExpectationChart />
+        <ExpectationChart monthlyDeposit={deposit} riskLevel={riskLevel} />
       </VStack>
     </Box>
   );
