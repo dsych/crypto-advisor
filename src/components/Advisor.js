@@ -51,8 +51,8 @@ export default function Advisor() {
 
         // also cache the info
         await Promise.all([
-          cacheService.update(depositKey, deposit),
-          cacheService.update(riskLevelKey, riskLevel),
+          cacheService.updateWithDelay(depositKey, deposit),
+          cacheService.updateWithDelay(riskLevelKey, riskLevel),
         ]);
       }
     };
