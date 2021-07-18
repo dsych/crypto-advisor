@@ -1,24 +1,11 @@
 import { getRiskAllocationBasedOnRank } from "../util/riskMask";
+import {
+  getYTDTimeLimits,
+  getNumOfDaysInMonth,
+  isLeapYear,
+} from "../util/dateTimeUtil";
 
 const baseUrl = "https://api.coincap.io/v2";
-const monthLength = [
-  31, // jan
-  28, // feb
-  31, // mar
-  30, // apr
-  31, // may
-  30, // jun
-  31, // jul
-  31, // aug
-  30, // sep
-  31, // oct
-  30, // nov
-  31, // dec
-];
-
-const isLeapYear = (date) =>
-  (date.getFullYear() % 4 === 0 && date.getFullYear() % 100 !== 0) ||
-  (date.getFullYear() % 100 === 0 && date.getFullYear() % 400 === 0);
 /**
  * Retrieves top n number of coins based on their market cap in descending order
  */
@@ -58,8 +45,6 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
 
   return result;
 };
-
-const millisecondsInDay = 86400000;
 
 /**
  * Ranks coins in ascending order based on their average deviation from the moving average of the past smaDays days
@@ -153,23 +138,6 @@ const rankCoins = async (coinList, smaDays) => {
   return rankedCoins;
 };
 
-const getYTDTimeLimits = (sourceDate) => {
-  sourceDate = sourceDate || new Date();
-
-  const periodStart = new Date(sourceDate.getTime());
-
-  periodStart.setFullYear(sourceDate.getFullYear() - 1);
-
-  periodStart.setDate(1);
-  periodStart.setHours(0, 0, 0);
-
-  const periodEnd = new Date(sourceDate.getTime());
-  // close period has to be one day before, which the end of previous month
-  periodEnd.setTime(periodEnd.getTime() - millisecondsInDay);
-
-  return [periodStart.getTime(), periodEnd.getTime()];
-};
-
 const extractMonthlyPricesForPeriod = async (coin, start, end) => {
   const response = await fetch(
     `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${start}&end=${end}`
@@ -187,7 +155,7 @@ const extractMonthlyPricesForPeriod = async (coin, start, end) => {
   for (let i = 0; i < 12; i++) {
     const timestamp = new Date(data[offset].time);
     const currMonth = timestamp.getMonth();
-    let daysInMonth = monthLength[currMonth];
+    let daysInMonth = getNumOfDaysInMonth(currMonth);
     // acocunt for extra day in leap year
     if (currMonth === 1) {
       daysInMonth += +isLeapYear(timestamp);
@@ -204,36 +172,36 @@ const extractMonthlyPricesForPeriod = async (coin, start, end) => {
   return { pricesForEachMonth: prices, id: coin.id, symbol: coin.symbol };
 };
 
-const initHistoricalData = async (dataService) => {
-  if (dataService._topCoins === null) {
+const initHistoricalData = async (statisticalService) => {
+  if (statisticalService._topCoins === null) {
     console.log("fetching top coins based on market cap");
-    dataService._topCoins = await retrieveTopCoins(
-      dataService._numberOfCoinsToFetch,
-      dataService._coinFilterList
+    statisticalService._topCoins = await retrieveTopCoins(
+      statisticalService._numberOfCoinsToFetch,
+      statisticalService._coinFilterList
     );
   }
 
-  if (dataService._historicalPriceData === null) {
+  if (statisticalService._historicalPriceData === null) {
     console.log("retrieving historical data for top coins");
     const promises = [];
     const [start, end] = getYTDTimeLimits(new Date());
-    for (const coin of dataService._topCoins) {
+    for (const coin of statisticalService._topCoins) {
       promises.push(extractMonthlyPricesForPeriod(coin, start, end));
     }
 
-    dataService._historicalPriceData = await Promise.all(promises);
+    statisticalService._historicalPriceData = await Promise.all(promises);
   }
 
-  if (dataService._dynamicCoins === null) {
+  if (statisticalService._dynamicCoins === null) {
     console.log("ranking coins based on risk");
-    dataService._dynamicCoins = await rankCoins(
-      dataService._historicalPriceData,
-      dataService._lengthOfSma
+    statisticalService._dynamicCoins = await rankCoins(
+      statisticalService._historicalPriceData,
+      statisticalService._lengthOfSma
     );
   }
 };
 
-export default class DataService {
+export default class StatisticalService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
   _coinFilterList = ["USDC", "USDT"];

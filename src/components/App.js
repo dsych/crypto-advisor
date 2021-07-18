@@ -1,29 +1,29 @@
-import DataService from '../services/dataService';
-import DataContext from '../contexts/dataContext';
-import CacheContext from '../contexts/cacheContext';
-import { ChakraProvider, CSSReset } from '@chakra-ui/react';
-import Advisor from './Advisor';
-import theme from '../theme';
-import CacheService from '../services/cacheService';
-import TextService from '../services/textService';
-import TextContext from '../contexts/textContext';
+import TextService from "../services/textService";
+import TextContext from "../contexts/textContext";
+import StatisticalService from "../services/statisticalService";
+import StatisticalContext from "../contexts/statisticalContext";
+import CacheContext from "../contexts/cacheContext";
+import { ChakraProvider, CSSReset } from "@chakra-ui/react";
+import Advisor from "./Advisor";
+import theme from "../theme";
+import CacheService from "../services/cacheService";
 
-const dataService = new DataService();
+const statisticalService = new StatisticalService();
 const cacheService = new CacheService();
 const textService = new TextService();
 
 function App() {
   return (
-    <DataContext.Provider value={dataService}>
-      <TextContext.Provider value={textService}>
+    <TextContext.Provider value={textService}>
+      <StatisticalContext.Provider value={statisticalService}>
         <CacheContext.Provider value={cacheService}>
           <ChakraProvider theme={theme}>
             <CSSReset />
             <Advisor />
           </ChakraProvider>
         </CacheContext.Provider>
-      </TextContext.Provider>
-    </DataContext.Provider>
+      </StatisticalContext.Provider>
+    </TextContext.Provider>
   );
 }
 
