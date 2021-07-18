@@ -1,50 +1,5 @@
 import { getRiskAllocationBasedOnRank } from "../util/riskMask";
-import {
-  getYTDTimeLimits,
-  getNumOfDaysInMonth,
-  isLeapYear,
-} from "../util/dateTimeUtil";
-
-const baseUrl = "https://api.coincap.io/v2";
-/**
- * Retrieves top n number of coins based on their market cap in descending order
- */
-const retrieveTopCoins = async (limit, excludeSymbolList) => {
-  // it is more efficient to work with a map than with a list
-  const ex = (excludeSymbolList || []).reduce((acc, el) => {
-    acc[el] = true;
-    return acc;
-  }, {});
-  let result = [];
-
-  try {
-    const response = await fetch(`${baseUrl}/assets`, {
-      mode: "cors",
-      method: "GET",
-      redirect: "follow",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Received ${response.status}: ${response.statusText}`);
-    }
-
-    const { data } = await response.json();
-
-    for (const coin of data) {
-      if (!ex[coin["symbol"]]) {
-        result.push(coin);
-      }
-      // terminate if we got enough coins
-      if (result.length === limit) {
-        break;
-      }
-    }
-  } catch (err) {
-    console.error("Failed to retrieve top coins", err);
-  }
-
-  return result;
-};
+import DataRepository from "../util/dataRepository";
 
 /**
  * Ranks coins in ascending order based on their average deviation from the moving average of the past smaDays days
@@ -138,81 +93,27 @@ const rankCoins = async (coinList, smaDays) => {
   return rankedCoins;
 };
 
-const extractMonthlyPricesForPeriod = async (coin, start, end) => {
-  const response = await fetch(
-    `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${start}&end=${end}`
-  );
-  const { data } = await response.json();
-
-  if (data.length < 365) {
-    throw new Error(`Received too little data, got ${data.length}`);
-  }
-
-  const prices = [];
-
-  let offset = 0;
-
-  for (let i = 0; i < 12; i++) {
-    const timestamp = new Date(data[offset].time);
-    const currMonth = timestamp.getMonth();
-    let daysInMonth = getNumOfDaysInMonth(currMonth);
-    // acocunt for extra day in leap year
-    if (currMonth === 1) {
-      daysInMonth += +isLeapYear(timestamp);
-    }
-
-    prices.push({
-      start: data[offset].time,
-      end: data[offset + daysInMonth - 1].time,
-      prices: data.slice(offset, offset + daysInMonth),
-    });
-    offset += daysInMonth;
-  }
-
-  return { pricesForEachMonth: prices, id: coin.id, symbol: coin.symbol };
-};
-
-const initHistoricalData = async (statisticalService) => {
-  if (statisticalService._topCoins === null) {
-    console.log("fetching top coins based on market cap");
-    statisticalService._topCoins = await retrieveTopCoins(
-      statisticalService._numberOfCoinsToFetch,
-      statisticalService._coinFilterList
-    );
-  }
-
-  if (statisticalService._historicalPriceData === null) {
-    console.log("retrieving historical data for top coins");
-    const promises = [];
-    const [start, end] = getYTDTimeLimits(new Date());
-    for (const coin of statisticalService._topCoins) {
-      promises.push(extractMonthlyPricesForPeriod(coin, start, end));
-    }
-
-    statisticalService._historicalPriceData = await Promise.all(promises);
-  }
-
-  if (statisticalService._dynamicCoins === null) {
-    console.log("ranking coins based on risk");
-    statisticalService._dynamicCoins = await rankCoins(
-      statisticalService._historicalPriceData,
-      statisticalService._lengthOfSma
-    );
-  }
-};
-
 export default class StatisticalService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
   _coinFilterList = ["USDC", "USDT"];
   _lengthOfSma = 150;
 
-  _historicalPriceData = null;
-  _topCoins = null;
+  _dataRepository = new DataRepository();
 
   async getCoinAllocationsFor(riskLevel) {
-    await initHistoricalData(this);
-
+    if (this._dynamicCoins === null) {
+      this._dynamicCoins = await rankCoins(
+        await this._dataRepository.extractMonthlyCoinPricesForPastYear(
+          await this._dataRepository.retrieveTopCoins(
+            this._numberOfCoinsToFetch,
+            this._coinFilterList
+          )
+        ),
+        this._lengthOfSma
+      );
+      console.log("ranking coins based on risk");
+    }
     return getRiskAllocationBasedOnRank(this._dynamicCoins, riskLevel - 1);
   }
 }
