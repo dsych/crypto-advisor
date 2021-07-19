@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, FormLabel, Text } from '@chakra-ui/react';
+import React, { useContext } from 'react';
+import { Box, Text, HStack } from '@chakra-ui/react';
 import {
   AreaChart,
   Area,
@@ -8,6 +8,8 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
+import TouchTooltip from './TouchFriendTooltip';
+import TextContext from '../contexts/textContext';
 
 const getMarginAmount = (amount, riskLevel) => {
   const margin = 10; //10% base margin
@@ -25,6 +27,8 @@ const getYearIncome = (currentAmount, monthlyDeposit) => {
 };
 
 export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
+  const textService = useContext(TextContext);
+
   monthlyDeposit = Number.parseFloat(monthlyDeposit);
 
   const year1 = getYearIncome(monthlyDeposit, monthlyDeposit);
@@ -75,10 +79,13 @@ export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
   return (
     <Box>
       <Box>
-        <FormLabel>In 5 years you will likely have</FormLabel>
-        <Text>
-          ${year5minusMargin.toFixed(2)}-{year5plusMargin.toFixed(2)}
-        </Text>
+        <Text fontWeight="medium">In 5 years you will likely have</Text>
+        <HStack>
+          <Text fontWeight="light">
+            ${year5minusMargin.toFixed(2)}-{year5plusMargin.toFixed(2)}
+          </Text>
+          <TouchTooltip text={textService.get('expectation_help')} />
+        </HStack>
       </Box>
       <Box h="300px">
         <ResponsiveContainer width="100%" height="100%">

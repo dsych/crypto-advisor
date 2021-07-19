@@ -1,11 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
-import DataContext from "../contexts/dataContext";
-import CacheContext from "../contexts/cacheContext";
+import React, { useContext, useState, useEffect } from 'react';
+import DataContext from '../contexts/dataContext';
+import TextContext from '../contexts/textContext';
+import CacheContext from '../contexts/cacheContext';
 import {
   Box,
   VStack,
-  FormControl,
-  FormLabel,
   NumberInput,
   NumberInputField,
   Slider,
@@ -17,16 +16,20 @@ import {
   NumberDecrementStepper,
   Divider,
   Spinner,
-} from "@chakra-ui/react";
+  HStack,
+  Text,
+} from '@chakra-ui/react';
+import TouchTooltip from './TouchFriendTooltip';
 
-import Contributions from "./Contributions";
-import ExpectationChart from "./ExpectationChart";
+import Contributions from './Contributions';
+import ExpectationChart from './ExpectationChart';
 
-const depositKey = "deposit";
-const riskLevelKey = "riskLevel";
+const depositKey = 'deposit';
+const riskLevelKey = 'riskLevel';
 
 export default function Advisor() {
   const dataService = useContext(DataContext);
+  const textService = useContext(TextContext);
   const cacheService = useContext(CacheContext);
 
   const [deposit, setDeposit] = useState(+cacheService.get(depositKey, 100));
@@ -35,7 +38,7 @@ export default function Advisor() {
   );
 
   const [holdings, setHoldings] = useState([]);
-  const [riskLevelLabel, setRiskLevelLabel] = useState("");
+  const [riskLevelLabel, setRiskLevelLabel] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -62,35 +65,39 @@ export default function Advisor() {
   return (
     <Box
       borderWidth="1px"
-      w={{ base: "80%", md: "70%", xl: "50%" }}
+      w={{ base: '90%', sm: '80%', md: '70%', xl: '45%' }}
       rounded="lg"
       m="auto"
-      mt="100px"
-      mb="100px"
+      mt={{ base: '5%' }}
+      mb={{ base: '5%' }}
       p="30px"
       shadow="md"
     >
       {/* Monthly Deposit */}
       <VStack spacing={4} align="stretch">
-        <FormControl id="deposit">
-          <FormLabel>Monthly Deposit</FormLabel>
-          <NumberInput
-            value={deposit}
-            min={0}
-            step={10}
-            onChange={(value) => setDeposit(value)}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </FormControl>
+        <HStack>
+          <Text fontWeight="medium">Monthly Deposit</Text>
+          <TouchTooltip text={textService.get('montly_deposit_help')} />
+        </HStack>
+        <NumberInput
+          value={deposit}
+          min={0}
+          step={10}
+          onChange={(value) => setDeposit(value)}
+        >
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
 
         {/* Risk Level */}
         <Box>
-          <FormLabel>Risk Level ({riskLevelLabel})</FormLabel>
+          <HStack>
+            <Text fontWeight="medium">Risk Level ({riskLevelLabel})</Text>
+            <TouchTooltip text={textService.get('risklevel_help')} />
+          </HStack>
           <Slider
             name="riskLevel"
             value={riskLevel}
@@ -111,7 +118,13 @@ export default function Advisor() {
 
         {/* Monthly Contribution */}
         {isLoading ? (
-          <Spinner size="xl" display={isLoading ? "block" : "none"} mx="5" />
+          <Spinner
+            size="xl"
+            emptyColor="gray.200"
+            color="blue.500"
+            display={isLoading ? 'block' : 'none'}
+            mx="5"
+          />
         ) : (
           <Contributions holdings={holdings} deposit={deposit} />
         )}

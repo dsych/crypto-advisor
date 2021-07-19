@@ -1,6 +1,6 @@
-import { getRiskAllocationBasedOnRank } from "../util/riskMask";
+import { getRiskAllocationBasedOnRank } from '../util/riskMask';
 
-const baseUrl = "https://api.coincap.io/v2";
+const baseUrl = 'https://api.coincap.io/v2';
 /**
  * Retrieves top n number of coins based on their market cap in descending order
  */
@@ -14,9 +14,9 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
 
   try {
     const response = await fetch(`${baseUrl}/assets`, {
-      mode: "cors",
-      method: "GET",
-      redirect: "follow",
+      mode: 'cors',
+      method: 'GET',
+      redirect: 'follow',
     });
 
     if (!response.ok) {
@@ -28,7 +28,7 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
     const { data } = await response.json();
 
     for (const coin of data) {
-      if (!ex[coin["symbol"]]) {
+      if (!ex[coin['symbol']]) {
         result.push(coin);
       }
       // terminate if we got enough coins
@@ -37,7 +37,7 @@ const retrieveTopCoins = async (limit, excludeSymbolList) => {
       }
     }
   } catch (err) {
-    console.error("Failed to retrieve top coins", err);
+    console.error('Failed to retrieve top coins', err);
   }
 
   return result;
@@ -70,7 +70,7 @@ const rankCoins = async (coinList, smaDays) => {
       const { data } = await (
         await fetch(
           `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${startUnixTime}&end=${endUnixTime}`,
-          { method: "GET", redirect: "follow" }
+          { method: 'GET', redirect: 'follow' }
         )
       ).json();
 
@@ -111,7 +111,7 @@ const rankCoins = async (coinList, smaDays) => {
           0
         ) / historicalData[coin.symbol].deviations.length;
     } catch (err) {
-      console.error("Failed to fetch historical data for ", coin.id);
+      console.error('Failed to fetch historical data for ', coin.id);
       console.error(err);
     }
   }
@@ -139,7 +139,7 @@ const rankCoins = async (coinList, smaDays) => {
 export default class DataService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
-  _coinFilterList = ["USDC", "USDT"];
+  _coinFilterList = ['USDC', 'USDT'];
   _lengthOfSma = 150;
 
   async getCoinAllocationsFor(riskLevel) {
