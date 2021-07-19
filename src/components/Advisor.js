@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import DataContext from '../contexts/dataContext';
 import TextContext from '../contexts/textContext';
+import CacheContext from '../contexts/cacheContext';
 import {
   Box,
   VStack,
@@ -23,12 +24,19 @@ import TouchTooltip from './TouchFriendTooltip';
 import Contributions from './Contributions';
 import ExpectationChart from './ExpectationChart';
 
+const depositKey = 'deposit';
+const riskLevelKey = 'riskLevel';
+
 export default function Advisor() {
   const dataService = useContext(DataContext);
   const textService = useContext(TextContext);
+  const cacheService = useContext(CacheContext);
 
-  const [deposit, setDeposit] = useState(100);
-  const [riskLevel, setRiskLevel] = useState(5);
+  const [deposit, setDeposit] = useState(+cacheService.get(depositKey, 100));
+  const [riskLevel, setRiskLevel] = useState(
+    +cacheService.get(riskLevelKey, 5)
+  );
+
   const [holdings, setHoldings] = useState([]);
   const [riskLevelLabel, setRiskLevelLabel] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -43,10 +51,16 @@ export default function Advisor() {
         setIsLoading(false);
         setRiskLevelLabel(label);
         setHoldings(holdings);
+
+        // also cache the info
+        await Promise.all([
+          cacheService.updateWithDelay(depositKey, deposit),
+          cacheService.updateWithDelay(riskLevelKey, riskLevel),
+        ]);
       }
     };
     fetchRisk();
-  }, [deposit, riskLevel, dataService]);
+  }, [deposit, riskLevel, dataService, cacheService]);
 
   return (
     <Box
@@ -66,7 +80,7 @@ export default function Advisor() {
           <TouchTooltip text={textService.get('montly_deposit_help')} />
         </HStack>
         <NumberInput
-          defaultValue={100}
+          value={deposit}
           min={0}
           step={10}
           onChange={(value) => setDeposit(value)}
@@ -86,7 +100,7 @@ export default function Advisor() {
           </HStack>
           <Slider
             name="riskLevel"
-            defaultValue={5}
+            value={riskLevel}
             min={1}
             max={10}
             step={1}

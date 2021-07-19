@@ -11,7 +11,6 @@ export default class TextService {
   };
 
   get(textId) {
-    console.log(textId);
     return this._data[textId] || '';
   }
 }
