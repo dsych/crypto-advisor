@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/dsych/crypto-advisor/issues"
   },
-  "homepage": "https://dsych.github.io/crypto-advisor",
+  "homepage": "https://cryptowealth.app",
   "dependencies": {
     "@chakra-ui/icons": "^1.0.13",
     "@chakra-ui/react": "^1.6.3",
