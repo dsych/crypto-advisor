@@ -93,6 +93,21 @@ const rankCoins = async (coinList, smaDays) => {
   return rankedCoins;
 };
 
+const predict = (currentAmount, monthlyDeposit) => {
+  for (let i = 0; i < 12; i++) {
+    //4% a month
+    currentAmount *= 1.04;
+    //+ monthly deposit
+    currentAmount += monthlyDeposit;
+  }
+  return currentAmount;
+};
+
+const getMarginAmount = (amount, riskLevel) => {
+  const margin = 10; //10% base margin
+  return (amount / 100) * (margin + riskLevel * 2);
+};
+
 export default class StatisticalService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
@@ -115,5 +130,27 @@ export default class StatisticalService {
       console.log("ranking coins based on risk");
     }
     return getRiskAllocationBasedOnRank(this._dynamicCoins, riskLevel - 1);
+  }
+
+  async predictProfitForTheNext(
+    numOfYears,
+    initialDeposit,
+    monthlyDeposit,
+    riskLevel
+  ) {
+    // const allocations = await this.getCoinAllocationsFor(riskLevel);
+
+    let predictions = [];
+    for (let year = 1; year <= numOfYears; year++) {
+      initialDeposit = predict(initialDeposit, monthlyDeposit);
+      const marginAmount = getMarginAmount(initialDeposit, riskLevel);
+      predictions.push({
+        maxAmount: initialDeposit + marginAmount,
+        minAmount: initialDeposit - marginAmount,
+        average: initialDeposit,
+      });
+    }
+
+    return predictions;
   }
 }
