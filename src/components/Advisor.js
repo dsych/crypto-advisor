@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react';
-import DataContext from '../contexts/dataContext';
-import TextContext from '../contexts/textContext';
-import CacheContext from '../contexts/cacheContext';
+import TextContext from "../contexts/textContext";
+import React, { useContext, useState, useEffect } from "react";
+import StatisticalContext from "../contexts/statisticalContext";
+import CacheContext from "../contexts/cacheContext";
 import {
   Box,
   VStack,
@@ -18,18 +18,18 @@ import {
   Spinner,
   HStack,
   Text,
-} from '@chakra-ui/react';
-import TouchTooltip from './TouchFriendTooltip';
+} from "@chakra-ui/react";
+import TouchTooltip from "./TouchFriendTooltip";
 
-import Contributions from './Contributions';
-import ExpectationChart from './ExpectationChart';
+import Contributions from "./Contributions";
+import ExpectationChart from "./ExpectationChart";
 
-const depositKey = 'deposit';
-const riskLevelKey = 'riskLevel';
+const depositKey = "deposit";
+const riskLevelKey = "riskLevel";
 
 export default function Advisor() {
-  const dataService = useContext(DataContext);
   const textService = useContext(TextContext);
+  const statisticalService = useContext(StatisticalContext);
   const cacheService = useContext(CacheContext);
 
   const [deposit, setDeposit] = useState(+cacheService.get(depositKey, 100));
@@ -38,15 +38,16 @@ export default function Advisor() {
   );
 
   const [holdings, setHoldings] = useState([]);
-  const [riskLevelLabel, setRiskLevelLabel] = useState('');
+  const [riskLevelLabel, setRiskLevelLabel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchRisk = async () => {
       if (deposit > 0) {
-        const { holdings, label } = await dataService.getCoinAllocationsFor(
-          riskLevel
-        );
+        const {
+          holdings,
+          label,
+        } = await statisticalService.getCoinAllocationsFor(riskLevel);
 
         setIsLoading(false);
         setRiskLevelLabel(label);
@@ -60,16 +61,16 @@ export default function Advisor() {
       }
     };
     fetchRisk();
-  }, [deposit, riskLevel, dataService, cacheService]);
+  }, [deposit, riskLevel, statisticalService, cacheService]);
 
   return (
     <Box
       borderWidth="1px"
-      w={{ base: '90%', sm: '80%', md: '70%', xl: '45%' }}
+      w={{ base: "90%", sm: "80%", md: "70%", xl: "45%" }}
       rounded="lg"
       m="auto"
-      mt={{ base: '5%' }}
-      mb={{ base: '5%' }}
+      mt={{ base: "5%" }}
+      mb={{ base: "5%" }}
       p="30px"
       shadow="md"
     >
@@ -77,7 +78,7 @@ export default function Advisor() {
       <VStack spacing={4} align="stretch">
         <HStack>
           <Text fontWeight="medium">Monthly Deposit</Text>
-          <TouchTooltip text={textService.get('montly_deposit_help')} />
+          <TouchTooltip text={textService.get("montly_deposit_help")} />
         </HStack>
         <NumberInput
           value={deposit}
@@ -96,7 +97,7 @@ export default function Advisor() {
         <Box>
           <HStack>
             <Text fontWeight="medium">Risk Level ({riskLevelLabel})</Text>
-            <TouchTooltip text={textService.get('risklevel_help')} />
+            <TouchTooltip text={textService.get("risklevel_help")} />
           </HStack>
           <Slider
             name="riskLevel"
@@ -122,7 +123,7 @@ export default function Advisor() {
             size="xl"
             emptyColor="gray.200"
             color="blue.500"
-            display={isLoading ? 'block' : 'none'}
+            display={isLoading ? "block" : "none"}
             mx="5"
           />
         ) : (
