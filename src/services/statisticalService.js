@@ -1,5 +1,5 @@
-import { getRiskAllocationBasedOnRank } from "../util/riskMask";
-import DataRepository from "../util/dataRepository";
+import { getRiskAllocationBasedOnRank } from '../util/riskMask';
+import DataRepository from '../util/dataRepository';
 
 /**
  * Ranks coins in ascending order based on their average deviation from the moving average of the past smaDays days
@@ -67,7 +67,7 @@ const rankCoins = async (coinList, smaDays) => {
         ) / historicalData[coin.id].deviations.length;
       historicalData[coin.id].symbol = coin.symbol;
     } catch (err) {
-      console.error("Failed to fetch historical data for ", coin.id);
+      console.error('Failed to fetch historical data for ', coin.id);
       console.error(err);
     }
   }
@@ -96,24 +96,24 @@ const rankCoins = async (coinList, smaDays) => {
 export default class StatisticalService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
-  _coinFilterList = ["USDC", "USDT"];
+  _coinFilterList = ['USDC', 'USDT'];
   _lengthOfSma = 150;
 
   _dataRepository = new DataRepository();
 
   async getCoinAllocationsFor(riskLevel) {
-    if (this._dynamicCoins === null) {
-      this._dynamicCoins = await rankCoins(
-        await this._dataRepository.extractMonthlyCoinPricesForPastYear(
-          await this._dataRepository.retrieveTopCoins(
-            this._numberOfCoinsToFetch,
-            this._coinFilterList
-          )
-        ),
-        this._lengthOfSma
-      );
-      console.log("ranking coins based on risk");
-    }
-    return getRiskAllocationBasedOnRank(this._dynamicCoins, riskLevel - 1);
+    // if (this._dynamicCoins === null) {
+    //   this._dynamicCoins = await rankCoins(
+    //     await this._dataRepository.extractMonthlyCoinPricesForPastYear(
+    //       await this._dataRepository.retrieveTopCoins(
+    //         this._numberOfCoinsToFetch,
+    //         this._coinFilterList
+    //       )
+    //     ),
+    //     this._lengthOfSma
+    //   );
+    //   console.log("ranking coins based on risk");
+    // }
+    return getRiskAllocationBasedOnRank([], riskLevel - 1);
   }
 }
