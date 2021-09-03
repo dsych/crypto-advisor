@@ -36,5 +36,8 @@ export const getYTDTimeLimits = (sourceDate) => {
   // close period has to be one day before, which the end of previous month
   periodEnd.setTime(periodEnd.getTime() - millisecondsInDay);
 
-  return [periodStart.getTime(), periodEnd.getTime()];
+  return [
+    parseInt(periodStart.getTime() / 1000),
+    parseInt(periodEnd.getTime() / 1000),
+  ];
 };

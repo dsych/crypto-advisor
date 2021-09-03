@@ -18,7 +18,9 @@ export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
   coinList
     .sort((l, r) => +l.rank - +r.rank)
     .slice(0, portfolio.holdings.length)
-    .forEach((el, index) => (portfolio.holdings[index].name = el.symbol));
+    .forEach((el, index) => {
+      portfolio.holdings[index] = Object.assign(portfolio.holdings[index], el);
+    });
 
   return portfolio;
 };

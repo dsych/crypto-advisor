@@ -4,7 +4,7 @@ import {
   isLeapYear,
 } from "./dateTimeUtil";
 
-const baseUrl = "https://api.coincap.io/v2";
+const baseUrl = "https://api.coingecko.com/api/v3";
 
 export default class DataRepository {
   _historicalPriceData = null;
@@ -40,20 +40,25 @@ export default class DataRepository {
    */
   extractMonthlyPricesForPeriod = async (coin, start, end) => {
     const response = await fetch(
-      `${baseUrl}/assets/${coin.id}/history?interval=d1&start=${start}&end=${end}`
+      `${baseUrl}/coins/${coin.id}/market_chart/range?from=${start}&to=${end}&vs_currency=USD`,
+      {
+        // mode: "cors",
+        redirect: "follow",
+        method: "GET",
+      }
     );
-    const { data } = await response.json();
+    const { prices } = await response.json();
 
-    if (data.length < 365) {
-      throw new Error(`Received too little data, got ${data.length}`);
+    if (prices.length < 365) {
+      throw new Error(`Received too little data, got ${prices.length}`);
     }
 
-    const prices = [];
+    const result = [];
 
     let offset = 0;
 
     for (let i = 0; i < 12; i++) {
-      const timestamp = new Date(data[offset].time);
+      const timestamp = new Date(prices[offset][0]);
       const currMonth = timestamp.getMonth();
       let daysInMonth = getNumOfDaysInMonth(currMonth);
       // acocunt for extra day in leap year
@@ -61,15 +66,20 @@ export default class DataRepository {
         daysInMonth += +isLeapYear(timestamp);
       }
 
-      prices.push({
-        start: data[offset].time,
-        end: data[offset + daysInMonth - 1].time,
-        prices: data.slice(offset, offset + daysInMonth),
+      result.push({
+        start: prices[offset][1],
+        end: prices[offset + daysInMonth - 1][1],
+        prices: prices.slice(offset, offset + daysInMonth).map((p) => p[1]),
       });
       offset += daysInMonth;
     }
 
-    return { pricesForEachMonth: prices, id: coin.id, symbol: coin.symbol };
+    return {
+      pricesForEachMonth: result,
+      id: coin.id,
+      symbol: coin.symbol,
+      image: coin.image,
+    };
   };
 
   /**
@@ -90,20 +100,23 @@ export default class DataRepository {
     let result = [];
 
     try {
-      const response = await fetch(`${baseUrl}/assets`, {
-        mode: "cors",
-        method: "GET",
-        redirect: "follow",
-      });
+      const response = await fetch(
+        `${baseUrl}/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=20&page=1&sparkline=false`,
+        {
+          // mode: "cors",
+          method: "GET",
+          redirect: "follow",
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Received ${response.status}: ${response.statusText}`);
       }
 
-      const { data } = await response.json();
+      const data = await response.json();
 
       for (const coin of data) {
-        if (!ex[coin["symbol"]]) {
+        if (!ex[coin["symbol"].toLowerCase()]) {
           result.push(coin);
         }
         // terminate if we got enough coins

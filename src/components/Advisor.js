@@ -18,6 +18,7 @@ import {
   Spinner,
   HStack,
   Text,
+  Heading,
 } from "@chakra-ui/react";
 import TouchTooltip from "./TouchFriendTooltip";
 
@@ -44,10 +45,8 @@ export default function Advisor() {
   useEffect(() => {
     const fetchRisk = async () => {
       if (deposit > 0) {
-        const {
-          holdings,
-          label,
-        } = await statisticalService.getCoinAllocationsFor(riskLevel);
+        const { holdings, label } =
+          await statisticalService.getCoinAllocationsFor(riskLevel);
 
         setIsLoading(false);
         setRiskLevelLabel(label);
@@ -76,6 +75,9 @@ export default function Advisor() {
     >
       {/* Monthly Deposit */}
       <VStack spacing={4} align="stretch">
+        <HStack align="center">
+          <Heading fontWeight="extrabold">CryptoWealth</Heading>
+        </HStack>
         <HStack>
           <Text fontWeight="medium">Monthly Deposit</Text>
           <TouchTooltip text={textService.get("montly_deposit_help")} />

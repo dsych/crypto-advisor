@@ -37,25 +37,27 @@ const rankCoins = async (coinList, smaDays) => {
       }
 
       // calculate the initial average
-      let sumOfPeriod = data.reduce((acc, curr) => (acc += +curr.priceUsd), 0);
+      let sumOfPeriod = data
+        .slice(data.length - smaDays * 2, data.length - smaDays)
+        .reduce((acc, curr) => (acc += +curr), 0);
 
       // account for possible duplicates
       historicalData[coin.id] = {};
       historicalData[coin.id].deviations = [];
       historicalData[coin.id].averages = [];
+      historicalData[coin.id].original = coin;
 
       // calculate moving averages for each day of the last smaDays days using sliding window
       for (let i = data.length - smaDays; i < data.length; i++) {
         // move the average to include the current time point
-        sumOfPeriod += +data[i].priceUsd;
-        sumOfPeriod -= +data[i - 1].priceUsd;
+        sumOfPeriod += +data[i];
+        sumOfPeriod -= +data[i - smaDays];
 
         const movingAverage = sumOfPeriod / smaDays;
 
         historicalData[coin.id].averages.push(movingAverage);
         historicalData[coin.id].deviations.push(
-          (Math.abs(Math.abs(movingAverage) - Math.abs(+data[i].priceUsd)) *
-            100) /
+          (Math.abs(Math.abs(movingAverage) - Math.abs(+data[i])) * 100) /
             Math.abs(movingAverage)
         );
       }
@@ -65,7 +67,6 @@ const rankCoins = async (coinList, smaDays) => {
           (acc, curr) => (acc += curr),
           0
         ) / historicalData[coin.id].deviations.length;
-      historicalData[coin.id].symbol = coin.symbol;
     } catch (err) {
       console.error("Failed to fetch historical data for ", coin.id);
       console.error(err);
@@ -76,19 +77,22 @@ const rankCoins = async (coinList, smaDays) => {
   const rankedCoins = Object.keys(historicalData)
     .map((key) =>
       Object.assign(
-        {},
         {
-          id: key,
-          symbol: historicalData[key].symbol,
-          averageDeviation: historicalData[key].averageDeviation,
-          averages: historicalData[key].averages,
-          deviations: historicalData[key].deviations,
-        }
+          statistics: {
+            averageDeviation: historicalData[key].averageDeviation,
+            averages: historicalData[key].averages,
+            deviations: historicalData[key].deviations,
+          },
+        },
+        historicalData[key].original
       )
     )
-    .sort((left, right) => left.averageDeviation - right.averageDeviation);
+    .sort(
+      (left, right) =>
+        left.statistics.averageDeviation - right.statistics.averageDeviation
+    );
 
-  rankedCoins.forEach((coin, index) => (coin.rank = index + 1));
+  rankedCoins.forEach((coin, index) => (coin.statistics.rank = index + 1));
 
   return rankedCoins;
 };
@@ -111,7 +115,7 @@ const getMarginAmount = (amount, riskLevel) => {
 export default class StatisticalService {
   _dynamicCoins = null;
   _numberOfCoinsToFetch = 6;
-  _coinFilterList = ["USDC", "USDT"];
+  _coinFilterList = ["usdc", "usdt"];
   _lengthOfSma = 150;
 
   _dataRepository = new DataRepository();
