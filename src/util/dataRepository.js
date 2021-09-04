@@ -20,10 +20,6 @@ export default class DataRepository {
       return this._historicalPriceData;
     }
 
-    console.log(
-      "fetching historical price information for the past year to coins"
-    );
-
     const promises = [];
     const [start, end] = getYTDTimeLimits(new Date());
     for (const coin of coinList) {
@@ -66,10 +62,15 @@ export default class DataRepository {
         daysInMonth += +isLeapYear(timestamp);
       }
 
+      const amounts = prices
+        .slice(offset, offset + daysInMonth)
+        .map((p) => +p[1]);
+
       result.push({
         start: prices[offset][1],
         end: prices[offset + daysInMonth - 1][1],
-        prices: prices.slice(offset, offset + daysInMonth).map((p) => p[1]),
+        prices: amounts,
+        average: amounts.reduce((acc, curr) => (acc += curr), 0) / daysInMonth,
       });
       offset += daysInMonth;
     }
@@ -90,7 +91,6 @@ export default class DataRepository {
     if (this._topCoins) {
       return this._topCoins;
     }
-    console.log("retrieving top coins based on market cap");
 
     // it is more efficient to work with a map than with a list
     const ex = (excludeSymbolList || []).reduce((acc, el) => {

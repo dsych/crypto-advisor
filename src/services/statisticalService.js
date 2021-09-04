@@ -97,19 +97,39 @@ const rankCoins = async (coinList, smaDays) => {
   return rankedCoins;
 };
 
-const predict = (currentAmount, monthlyDeposit) => {
-  for (let i = 0; i < 12; i++) {
-    //4% a month
-    currentAmount *= 1.04;
-    //+ monthly deposit
-    currentAmount += monthlyDeposit;
-  }
-  return currentAmount;
+const predict = (currentAmount, monthlyDeposit, volatilityOfCoins) => {
+  const getSplit = (targetAmount, vols) => {
+    return vols.map((vol) => {
+      const fraction = targetAmount * (vol.percent / 100);
+      return fraction * (vol.yearlyChange / 100);
+    });
+  };
+
+  return (
+    currentAmount +
+    monthlyDeposit * 12 +
+    getSplit(monthlyDeposit * 12, volatilityOfCoins).reduce(
+      (acc, curr) => (acc += curr),
+      0
+    )
+  );
 };
 
-const getMarginAmount = (amount, riskLevel) => {
-  const margin = 10; //10% base margin
+const getMarginAmount = (amount, riskLevel, year) => {
+  // penalize margin based on the years in the future
+  // the further in the future we go, the less certain it becomes
+  const margin = 10 * Math.log(year); //10% base margin
   return (amount / 100) * (margin + riskLevel * 2);
+};
+
+const calculateYearlyChangeInPrice = (coin) => {
+  const last =
+    coin.pricesForEachMonth[coin.pricesForEachMonth.length - 1].average;
+  const first = coin.pricesForEachMonth[0].average;
+  return {
+    yearlyChange: ((last - first) * 100) / last,
+    percent: coin.percent,
+  };
 };
 
 export default class StatisticalService {
@@ -131,7 +151,6 @@ export default class StatisticalService {
         ),
         this._lengthOfSma
       );
-      console.log("ranking coins based on risk");
     }
     return getRiskAllocationBasedOnRank(this._dynamicCoins, riskLevel - 1);
   }
@@ -142,16 +161,24 @@ export default class StatisticalService {
     monthlyDeposit,
     riskLevel
   ) {
-    // const allocations = await this.getCoinAllocationsFor(riskLevel);
+    // FIXME: handle the rase condition
+    const allocations = await this.getCoinAllocationsFor(riskLevel);
+
+    const volatilityOfCoins = allocations.holdings.map(
+      calculateYearlyChangeInPrice
+    );
 
     let predictions = [];
     for (let year = 1; year <= numOfYears; year++) {
-      initialDeposit = predict(initialDeposit, monthlyDeposit);
-      const marginAmount = getMarginAmount(initialDeposit, riskLevel);
+      initialDeposit = predict(
+        initialDeposit,
+        monthlyDeposit,
+        volatilityOfCoins
+      );
+      const marginAmount = getMarginAmount(initialDeposit, riskLevel, year);
       predictions.push({
         maxAmount: initialDeposit + marginAmount,
         minAmount: initialDeposit - marginAmount,
-        average: initialDeposit,
       });
     }
 

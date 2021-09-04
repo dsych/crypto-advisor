@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, Text, HStack } from "@chakra-ui/react";
+import { Box, Text, HStack, Heading } from "@chakra-ui/react";
 import {
   AreaChart,
   Area,
@@ -50,14 +50,14 @@ export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
   return (
     <Box>
       <Box>
-        <Text fontWeight="medium">
-          In ${rangeData.length} years you will likely have
-        </Text>
         <HStack>
-          <Text fontWeight="light">
+          <Text fontWeight="medium">
+            In {rangeData.length} years you will likely have
+          </Text>
+          <Heading size="md">
             ${rangeData[rangeData.length - 1].usd[0].toFixed(2)}-
             {rangeData[rangeData.length - 1].usd[1].toFixed(2)}
-          </Text>
+          </Heading>
           <TouchTooltip text={textService.get("expectation_help")} />
         </HStack>
       </Box>
