@@ -10,6 +10,7 @@ const getValueWithinLimits = (v, min, max) => {
 
 export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
   coinList = coinList || [];
+
   riskLevel =
     getValueWithinLimits(riskLevel, 0, Object.keys(masks).length - 1) || 0;
 
