@@ -132,7 +132,11 @@ export default function Advisor() {
           <Contributions holdings={holdings} deposit={deposit} />
         )}
 
-        <ExpectationChart monthlyDeposit={deposit} riskLevel={riskLevel} />
+        <ExpectationChart
+          monthlyDeposit={deposit}
+          riskLevel={riskLevel}
+          holdings={holdings}
+        />
       </VStack>
     </Box>
   );

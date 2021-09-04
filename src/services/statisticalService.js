@@ -159,14 +159,10 @@ export default class StatisticalService {
     numOfYears,
     initialDeposit,
     monthlyDeposit,
-    riskLevel
+    riskLevel,
+    holdings
   ) {
-    // FIXME: handle the rase condition
-    const allocations = await this.getCoinAllocationsFor(riskLevel);
-
-    const volatilityOfCoins = allocations.holdings.map(
-      calculateYearlyChangeInPrice
-    );
+    const volatilityOfCoins = holdings.map(calculateYearlyChangeInPrice);
 
     let predictions = [];
     for (let year = 1; year <= numOfYears; year++) {

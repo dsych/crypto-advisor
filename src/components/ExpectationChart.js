@@ -12,7 +12,11 @@ import TouchTooltip from "./TouchFriendTooltip";
 import TextContext from "../contexts/textContext";
 import StatisticalContext from "../contexts/statisticalContext";
 
-export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
+export default function ExpectationChart({
+  monthlyDeposit,
+  riskLevel,
+  holdings,
+}) {
   const textService = useContext(TextContext);
   const statisticalService = useContext(StatisticalContext);
 
@@ -29,7 +33,8 @@ export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
         5,
         monthlyDeposit,
         monthlyDeposit,
-        riskLevel
+        riskLevel,
+        holdings
       );
       setRangeData(
         d.map((v, i) =>
@@ -45,7 +50,7 @@ export default function ExpectationChart({ monthlyDeposit, riskLevel }) {
     };
 
     predictReturns();
-  }, [monthlyDeposit, riskLevel, statisticalService]);
+  }, [monthlyDeposit, riskLevel, statisticalService, holdings]);
 
   return (
     <Box>
