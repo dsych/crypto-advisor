@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext } from "react";
 import {
   Box,
   SimpleGrid,
@@ -10,9 +10,9 @@ import {
   Stat,
   HStack,
   Text,
-} from '@chakra-ui/react';
-import TouchTooltip from './TouchFriendTooltip';
-import TextContext from '../contexts/textContext';
+} from "@chakra-ui/react";
+import TouchTooltip from "./TouchFriendTooltip";
+import TextContext from "../contexts/textContext";
 
 export default function Contributions({ holdings, deposit }) {
   const textService = useContext(TextContext);
@@ -26,32 +26,32 @@ export default function Contributions({ holdings, deposit }) {
     <Box>
       <HStack>
         <Text fontWeight="medium">Monthly Contribution</Text>
-        <TouchTooltip text={textService.get('contibutions_help')} />
+        <TouchTooltip text={textService.get("contibutions_help")} />
       </HStack>
       <SimpleGrid
-        ml={{ base: '3%', sm: '5%', md: '5%', xl: '7%' }}
+        ml={{ base: "3%", sm: "5%", md: "5%", xl: "7%" }}
         columns={{ base: 2, md: 3 }}
-        spacing={{ base: '20px', md: '40px' }}
+        spacing={{ base: "20px", md: "40px" }}
       >
         {holdings.map((holding) => {
           return (
-            <HStack key={holding.name}>
+            <HStack key={holding.id}>
               <Image
-                boxSize={{ base: '50px', md: '64px' }}
-                name={holding.name}
-                src={`https://assets.coincap.io/assets/icons/${holding.name.toLowerCase()}@2x.png`}
+                boxSize={{ base: "50px", md: "64px" }}
+                name={holding.symbol}
+                src={holding.image}
               />
               <Center>
                 <Stat>
                   <StatLabel
                     style={{
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase',
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
                     }}
                   >
-                    {holding.name}
+                    {holding.symbol}
                   </StatLabel>
-                  <StatNumber fontSize={{ base: '1em', md: '1.2em' }}>
+                  <StatNumber fontSize={{ base: "1em", md: "1.2em" }}>
                     ${calculateContribution(deposit, holding.percent)}
                   </StatNumber>
                   <StatHelpText>{holding.percent}%</StatHelpText>

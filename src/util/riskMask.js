@@ -10,7 +10,6 @@ const getValueWithinLimits = (v, min, max) => {
 
 export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
   coinList = coinList || [];
-  console.log('cointlist', coinList);
 
   riskLevel =
     getValueWithinLimits(riskLevel, 0, Object.keys(masks).length - 1) || 0;
@@ -20,301 +19,241 @@ export const getRiskAllocationBasedOnRank = (coinList, riskLevel) => {
   coinList
     .sort((l, r) => +l.rank - +r.rank)
     .slice(0, portfolio.holdings.length)
-    .forEach((el, index) => (portfolio.holdings[index].name = el.symbol));
-
-  console.log('portfolio', portfolio);
+    .forEach((el, index) => {
+      portfolio.holdings[index] = Object.assign(portfolio.holdings[index], el);
+    });
 
   return portfolio;
 };
 
 const masks = {
   0: {
-    label: 'Conservative',
+    label: "Conservative",
     holdings: [
       {
         percent: 80,
-        name: 'btc',
       },
       {
         percent: 10,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 0,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   1: {
-    label: 'Conservative',
+    label: "Conservative",
     holdings: [
       {
         percent: 75,
-        name: 'btc',
       },
       {
         percent: 15,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 0,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   2: {
-    label: 'Conservative',
+    label: "Conservative",
     holdings: [
       {
         percent: 70,
-        name: 'btc',
       },
       {
         percent: 20,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 0,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   3: {
-    label: 'Balanced',
+    label: "Balanced",
     holdings: [
       {
         percent: 65,
-        name: 'btc',
       },
       {
         percent: 20,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 5,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   4: {
-    label: 'Balanced',
+    label: "Balanced",
     holdings: [
       {
         percent: 60,
-        name: 'btc',
       },
       {
         percent: 20,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 10,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   5: {
-    label: 'Balanced',
+    label: "Balanced",
     holdings: [
       {
         percent: 60,
-        name: 'btc',
       },
       {
         percent: 25,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 5,
-        name: 'xrp',
       },
       {
         percent: 0,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   6: {
-    label: 'Balanced',
+    label: "Balanced",
     holdings: [
       {
         percent: 55,
-        name: 'btc',
       },
       {
         percent: 25,
-        name: 'eth',
       },
       {
         percent: 12,
-        name: 'bnb',
       },
       {
         percent: 5,
-        name: 'xrp',
       },
       {
         percent: 3,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   7: {
-    label: 'Growth',
+    label: "Growth",
     holdings: [
       {
         percent: 50,
-        name: 'btc',
       },
       {
         percent: 30,
-        name: 'eth',
       },
       {
         percent: 13,
-        name: 'bnb',
       },
       {
         percent: 4,
-        name: 'xrp',
       },
       {
         percent: 3,
-        name: 'ada',
       },
       {
         percent: 0,
-        name: 'uni',
       },
     ],
   },
   8: {
-    label: 'Growth',
+    label: "Growth",
     holdings: [
       {
         percent: 50,
-        name: 'btc',
       },
       {
         percent: 30,
-        name: 'eth',
       },
       {
         percent: 13,
-        name: 'bnb',
       },
       {
         percent: 4,
-        name: 'xrp',
       },
       {
         percent: 2,
-        name: 'ada',
       },
       {
         percent: 1,
-        name: 'uni',
       },
     ],
   },
   9: {
-    label: 'Growth',
+    label: "Growth",
     holdings: [
       {
         percent: 50,
-        name: 'btc',
       },
       {
         percent: 30,
-        name: 'eth',
       },
       {
         percent: 10,
-        name: 'bnb',
       },
       {
         percent: 4,
-        name: 'xrp',
       },
       {
         percent: 3,
-        name: 'ada',
       },
       {
         percent: 3,
-        name: 'uni',
       },
     ],
   },
