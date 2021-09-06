@@ -63,81 +63,66 @@ export default function Advisor() {
   }, [deposit, riskLevel, statisticalService, cacheService]);
 
   return (
-    <Box
-      borderWidth="1px"
-      w={{ base: "90%", sm: "80%", md: "70%", xl: "45%" }}
-      rounded="lg"
-      m="auto"
-      mt={{ base: "5%" }}
-      mb={{ base: "5%" }}
-      p="30px"
-      shadow="md"
-    >
-      {/* Monthly Deposit */}
-      <VStack spacing={4} align="stretch">
-        <HStack align="center">
-          <Heading fontWeight="extrabold">CryptoWealth</Heading>
-        </HStack>
+    <VStack spacing={4} align="stretch">
+      <HStack>
+        <Text fontWeight="medium">Monthly Deposit</Text>
+        <TouchTooltip text={textService.get("montly_deposit_help")} />
+      </HStack>
+      <NumberInput
+        value={deposit}
+        min={0}
+        step={10}
+        onChange={(value) => setDeposit(value)}
+      >
+        <NumberInputField />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+
+      {/* Risk Level */}
+      <Box>
         <HStack>
-          <Text fontWeight="medium">Monthly Deposit</Text>
-          <TouchTooltip text={textService.get("montly_deposit_help")} />
+          <Text fontWeight="medium">Risk Level ({riskLevelLabel})</Text>
+          <TouchTooltip text={textService.get("risklevel_help")} />
         </HStack>
-        <NumberInput
-          value={deposit}
-          min={0}
-          step={10}
-          onChange={(value) => setDeposit(value)}
+        <Slider
+          name="riskLevel"
+          value={riskLevel}
+          min={1}
+          max={10}
+          step={1}
+          onChange={(value) => setRiskLevel(value)}
         >
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
+          <SliderTrack>
+            <Box position="relative" right={10} />
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb boxSize={6} />
+        </Slider>
+      </Box>
 
-        {/* Risk Level */}
-        <Box>
-          <HStack>
-            <Text fontWeight="medium">Risk Level ({riskLevelLabel})</Text>
-            <TouchTooltip text={textService.get("risklevel_help")} />
-          </HStack>
-          <Slider
-            name="riskLevel"
-            value={riskLevel}
-            min={1}
-            max={10}
-            step={1}
-            onChange={(value) => setRiskLevel(value)}
-          >
-            <SliderTrack>
-              <Box position="relative" right={10} />
-              <SliderFilledTrack />
-            </SliderTrack>
-            <SliderThumb boxSize={6} />
-          </Slider>
-        </Box>
+      <Divider my="5" />
 
-        <Divider my="5" />
-
-        {/* Monthly Contribution */}
-        {isLoading ? (
-          <Spinner
-            size="xl"
-            emptyColor="gray.200"
-            color="blue.500"
-            display={isLoading ? "block" : "none"}
-            mx="5"
-          />
-        ) : (
-          <Contributions holdings={holdings} deposit={deposit} />
-        )}
-
-        <ExpectationChart
-          monthlyDeposit={deposit}
-          riskLevel={riskLevel}
-          holdings={holdings}
+      {/* Monthly Contribution */}
+      {isLoading ? (
+        <Spinner
+          size="xl"
+          emptyColor="gray.200"
+          color="blue.500"
+          display={isLoading ? "block" : "none"}
+          mx="5"
         />
-      </VStack>
-    </Box>
+      ) : (
+        <Contributions holdings={holdings} deposit={deposit} />
+      )}
+
+      <ExpectationChart
+        monthlyDeposit={deposit}
+        riskLevel={riskLevel}
+        holdings={holdings}
+      />
+    </VStack>
   );
 }
